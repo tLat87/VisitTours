@@ -31,8 +31,22 @@
 		<key>NSAllowsLocalNetworking</key>
 		<true/>
 	</dict>
+
+	<!-- Location permissions -->
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string></string>
+	<string>This app requires access to your location to display maps properly.</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>This app requires access to your location for accurate functionality.</string>
+
+	<!-- Optional: sharing schemes -->
+	<key>LSApplicationQueriesSchemes</key>
+	<array>
+	  <string>whatsapp</string>
+	  <string>tg</string>
+	  <string>viber</string>
+	  <string>fb</string>
+	</array>
+
 	<key>RCTNewArchEnabled</key>
 	<true/>
 	<key>UILaunchStoryboardName</key>
@@ -49,18 +63,5 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
-	<key>NSLocationWhenInUseUsageDescription</key>
-<string>This app requires access to your location to display maps properly.</string>
-
-<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-<string>This app requires access to your location for accurate functiona
-<key>LSApplicationQueriesSchemes</key>
-<array>
-  <string>whatsapp</string>
-  <string>tg</string>
-  <string>viber</string>
-  <string>fb</string>
-</array>
-
 </dict>
 </plist>
