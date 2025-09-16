@@ -12,10 +12,12 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { locations, Location } from '../data/locations';
+import { useResponsive } from '../utils/responsive';
 
 const { width, height } = Dimensions.get('window');
 
 const MapScreen = () => {
+  const responsive = useResponsive();
   const [selectedLocation, setSelectedLocation] = useState<Location | null>(null);
   const [showCard, setShowCard] = useState(false);
 
@@ -49,13 +51,17 @@ const MapScreen = () => {
     if (!selectedLocation || !showCard) return null;
 
     return (
-      <View style={styles.locationCard}>
+      <View style={[styles.locationCard, { 
+        width: responsive.isTablet ? responsive.cardWidth : width * 0.9,
+        maxWidth: responsive.cardMaxWidth,
+        maxHeight: responsive.isTablet ? height * 0.6 : height * 0.7
+      }]}>
         <TouchableOpacity style={styles.backButton} onPress={handleCloseCard}>
           <Text style={styles.backArrow}>←</Text>
         </TouchableOpacity>
 
         {/* Image */}
-        <View style={styles.cardImageContainer}>
+        <View style={[styles.cardImageContainer, { height: responsive.imageHeight }]}>
           <View style={styles.cardImagePlaceholder}>
             <Image 
               source={selectedLocation.image} 
@@ -67,12 +73,12 @@ const MapScreen = () => {
 
         {/* Content */}
         <View style={styles.cardContent}>
-          <Text style={styles.cardTitle}>{selectedLocation.title}</Text>
+          <Text style={[styles.cardTitle, { fontSize: responsive.fontSize.xlarge }]}>{selectedLocation.title}</Text>
           
-          <Text style={styles.cardDescription}>{selectedLocation.fullDescription}</Text>
+          <Text style={[styles.cardDescription, { fontSize: responsive.fontSize.medium }]}>{selectedLocation.fullDescription}</Text>
 
-          <TouchableOpacity style={styles.shareButton} onPress={() => handleShare(selectedLocation)}>
-            <Text style={styles.shareButtonText}>Share</Text>
+          <TouchableOpacity style={[styles.shareButton, { height: responsive.buttonHeight }]} onPress={() => handleShare(selectedLocation)}>
+            <Text style={[styles.shareButtonText, { fontSize: responsive.fontSize.medium }]}>Share</Text>
           </TouchableOpacity>
         </View>
       </View>

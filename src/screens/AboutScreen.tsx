@@ -11,10 +11,12 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useOnboarding } from '../hooks/useOnboarding';
+import { useResponsive } from '../utils/responsive';
 
 const { width, height } = Dimensions.get('window');
 
 const AboutScreen = () => {
+  const responsive = useResponsive();
   const { resetOnboarding } = useOnboarding();
 
   const handleShare = async () => {
@@ -50,14 +52,18 @@ const AboutScreen = () => {
       
       <SafeAreaView style={styles.safeArea}>
         {/* Main Card */}
-        <View style={styles.card}>
+        <View style={[styles.card, { 
+          width: responsive.isTablet ? responsive.cardWidth : width * 0.9,
+          maxWidth: responsive.cardMaxWidth,
+          maxHeight: responsive.isTablet ? height * 0.8 : height * 0.85
+        }]}>
           {/* Back Button */}
           <TouchableOpacity style={styles.backButton} onPress={() => {}}>
             <Text style={styles.backArrow}>←</Text>
           </TouchableOpacity>
 
           {/* Image */}
-          <View style={styles.imageContainer}>
+          <View style={[styles.imageContainer, { height: responsive.imageHeight }]}>
             <ImageBackground 
               source={require('../assets/img/fb379a3b00e9da2a210056ff53d6130c4e9fc572.png')} // Временный плейсхолдер - замените на изображение Clock Tower
               style={styles.image}
@@ -67,14 +73,14 @@ const AboutScreen = () => {
 
           {/* Content */}
           <View style={styles.content}>
-            <Text style={styles.title}>Clock tower</Text>
+            <Text style={[styles.title, { fontSize: responsive.fontSize.xlarge }]}>Clock tower</Text>
             
-            <Text style={styles.description}>
+            <Text style={[styles.description, { fontSize: responsive.fontSize.medium }]}>
               In the center of the city stands a unique clock tower, built in 1878. It was a gift to the city from a local businessman and is still the main landmark of Downham. Tourists and residents often arrange meetings here. The tower looks especially charming in the evening, when it is illuminated by street lamps. It is an ideal place for photos and the first point of the route, which is worth visiting.
             </Text>
 
-            <TouchableOpacity style={styles.shareButton} onPress={handleShare}>
-              <Text style={styles.shareButtonText}>Share</Text>
+            <TouchableOpacity style={[styles.shareButton, { height: responsive.buttonHeight }]} onPress={handleShare}>
+              <Text style={[styles.shareButtonText, { fontSize: responsive.fontSize.medium }]}>Share</Text>
             </TouchableOpacity>
 
             {/* Hidden Reset Button for development */}

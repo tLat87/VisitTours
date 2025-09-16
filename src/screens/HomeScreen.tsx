@@ -13,12 +13,14 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { locations, Location } from '../data/locations';
 import LocationDetailModal from '../components/LocationDetailModal';
+import { useResponsive } from '../utils/responsive';
 
 const { width } = Dimensions.get('window');
 
 type Category = 'peace' | 'history' | 'liveliness' | 'all';
 
 const HomeScreen = () => {
+  const responsive = useResponsive();
   const [selectedCategory, setSelectedCategory] = useState<Category>('all');
   const [likedLocations, setLikedLocations] = useState<Set<string>>(new Set());
   const [selectedLocation, setSelectedLocation] = useState<Location | null>(null);
@@ -27,7 +29,7 @@ const HomeScreen = () => {
   const categories = [
     { key: 'peace', label: 'Peace', icon: 'eco' },
     { key: 'history', label: 'History', icon: 'business' },
-    { key: 'liveliness', label: 'Liveliness', icon: 'play-arrow' },
+  
     // { key: 'all', label: 'All', icon: 'apps' },
   ];
 
@@ -73,10 +75,10 @@ const HomeScreen = () => {
   const renderLocationCard = (location: Location) => (
     <TouchableOpacity 
       key={location.id} 
-      style={styles.locationCard}
+      style={[styles.locationCard, { width: responsive.cardWidth, maxWidth: responsive.cardMaxWidth }]}
       onPress={() => handleLocationPress(location)}
     >
-      <View style={styles.imagePlaceholder}>
+      <View style={[styles.imagePlaceholder, { height: responsive.imageHeight }]}>
         <Image 
           source={location.image} 
           style={styles.placeholderImage}
@@ -84,17 +86,17 @@ const HomeScreen = () => {
         />
       </View>
       <View style={styles.cardContent}>
-        <Text style={styles.locationTitle}>{location.title}</Text>
+        <Text style={[styles.locationTitle, { fontSize: responsive.fontSize.large }]}>{location.title}</Text>
         <View style={styles.coordinatesContainer}>
           <Text style={styles.emoji}>📍</Text>
-          <Text style={styles.coordinates}>
+          <Text style={[styles.coordinates, { fontSize: responsive.fontSize.small }]}>
             {location.coordinates.latitude.toFixed(4)}, {location.coordinates.longitude.toFixed(4)}
           </Text>
         </View>
-        <Text style={styles.locationDescription}>{location.description}</Text>
+        <Text style={[styles.locationDescription, { fontSize: responsive.fontSize.medium }]}>{location.description}</Text>
         <View style={styles.cardActions}>
-          <TouchableOpacity style={styles.moreButton} onPress={() => handleLocationPress(location)}>
-            <Text style={styles.moreButtonText}>More</Text>
+          <TouchableOpacity style={[styles.moreButton, { height: responsive.buttonHeight }]} onPress={() => handleLocationPress(location)}>
+            <Text style={[styles.moreButtonText, { fontSize: responsive.fontSize.small }]}>More</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -142,25 +144,29 @@ const HomeScreen = () => {
         ))}
       </View>
 
-      {/* Content */}
-      <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-        {filteredLocations.length === 0 ? (
-          <View style={styles.emptyState}>
-            <View style={styles.emptyCard}>
-              <View style={styles.avatarContainer}>
-                <View style={styles.avatar}>
-                  <Text style={styles.avatarEmoji}>👋</Text>
+          {/* Content */}
+          <ScrollView 
+            style={styles.content} 
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={responsive.isTablet ? styles.tabletContentContainer : styles.phoneContentContainer}
+          >
+            {filteredLocations.length === 0 ? (
+              <View style={styles.emptyState}>
+                <View style={[styles.emptyCard, { maxWidth: responsive.cardMaxWidth }]}>
+                  <View style={styles.avatarContainer}>
+                    <View style={[styles.avatar, { width: responsive.buttonHeight * 2, height: responsive.buttonHeight * 2 }]}>
+                      <Text style={[styles.avatarEmoji, { fontSize: responsive.fontSize.xlarge }]}>👋</Text>
+                    </View>
+                  </View>
+                  <Text style={[styles.emptyText, { fontSize: responsive.fontSize.medium }]}>
+                    To get started, choose the category you are interested in.
+                  </Text>
                 </View>
               </View>
-              <Text style={styles.emptyText}>
-                To get started, choose the category you are interested in.
-              </Text>
-            </View>
-          </View>
-        ) : (
-          filteredLocations.map(renderLocationCard)
-        )}
-      </ScrollView>
+            ) : (
+              filteredLocations.map(renderLocationCard)
+            )}
+          </ScrollView>
 
       {/* Location Detail Modal */}
       <LocationDetailModal
@@ -341,6 +347,17 @@ const styles = StyleSheet.create({
   },
   avatarEmoji: {
     fontSize: 40,
+  },
+  tabletContentContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-around',
+    paddingHorizontal: 20,
+    paddingBottom: 20,
+  },
+  phoneContentContainer: {
+    paddingHorizontal: 20,
+    paddingBottom: 20,
   },
 });
 

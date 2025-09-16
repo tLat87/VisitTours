@@ -12,6 +12,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { locations, Location } from '../data/locations';
+import { useResponsive } from '../utils/responsive';
 
 const { width } = Dimensions.get('window');
 
@@ -60,14 +61,15 @@ const blogPosts: BlogPost[] = [
 ];
 
 const BlogScreen = () => {
+  const responsive = useResponsive();
   const [activeTab, setActiveTab] = useState<'recommended' | 'saved'>('recommended');
 
   // Берем первые 3 локации для Recommended
   const recommendedLocations = locations.slice(0, 3);
 
   const renderBlogPost = (post: BlogPost) => (
-    <TouchableOpacity key={post.id} style={styles.blogCard}>
-      <View style={styles.imageContainer}>
+    <TouchableOpacity key={post.id} style={[styles.blogCard, { width: responsive.cardWidth, maxWidth: responsive.cardMaxWidth }]}>
+      <View style={[styles.imageContainer, { height: responsive.imageHeight }]}>
         <View style={styles.imagePlaceholder}>
           <Image 
             source={post.image} 
@@ -76,22 +78,22 @@ const BlogScreen = () => {
           />
         </View>
         <View style={styles.categoryBadge}>
-          <Text style={styles.categoryText}>{post.category}</Text>
+          <Text style={[styles.categoryText, { fontSize: responsive.fontSize.small }]}>{post.category}</Text>
         </View>
       </View>
       
       <View style={styles.cardContent}>
-        <Text style={styles.blogTitle}>{post.title}</Text>
-        <Text style={styles.blogExcerpt}>{post.excerpt}</Text>
+        <Text style={[styles.blogTitle, { fontSize: responsive.fontSize.large }]}>{post.title}</Text>
+        <Text style={[styles.blogExcerpt, { fontSize: responsive.fontSize.medium }]}>{post.excerpt}</Text>
         
         <View style={styles.blogMeta}>
           <View style={styles.authorInfo}>
             <Text style={styles.metaEmoji}>👤</Text>
-            <Text style={styles.authorText}>{post.author}</Text>
+            <Text style={[styles.authorText, { fontSize: responsive.fontSize.small }]}>{post.author}</Text>
           </View>
           <View style={styles.dateInfo}>
             <Text style={styles.metaEmoji}>🕒</Text>
-            <Text style={styles.dateText}>{post.date}</Text>
+            <Text style={[styles.dateText, { fontSize: responsive.fontSize.small }]}>{post.date}</Text>
           </View>
         </View>
       </View>
@@ -99,8 +101,8 @@ const BlogScreen = () => {
   );
 
   const renderLocationCard = (location: Location) => (
-    <TouchableOpacity key={location.id} style={styles.locationCard}>
-      <View style={styles.imageContainer}>
+    <TouchableOpacity key={location.id} style={[styles.locationCard, { width: responsive.cardWidth, maxWidth: responsive.cardMaxWidth }]}>
+      <View style={[styles.imageContainer, { height: responsive.imageHeight }]}>
         <View style={styles.imagePlaceholder}>
           <Image 
             source={location.image} 
@@ -113,7 +115,7 @@ const BlogScreen = () => {
             {location.category === 'peace' ? '🌿' : 
              location.category === 'history' ? '🏰' : '🎉'}
           </Text>
-          <Text style={styles.categoryText}>
+          <Text style={[styles.categoryText, { fontSize: responsive.fontSize.small }]}>
             {location.category === 'peace' ? 'Peace' : 
              location.category === 'history' ? 'History' : 'Liveliness'}
           </Text>
@@ -121,19 +123,19 @@ const BlogScreen = () => {
       </View>
       
       <View style={styles.cardContent}>
-        <Text style={styles.blogTitle}>{location.title}</Text>
-        <Text style={styles.blogExcerpt}>{location.description}</Text>
+        <Text style={[styles.blogTitle, { fontSize: responsive.fontSize.large }]}>{location.title}</Text>
+        <Text style={[styles.blogExcerpt, { fontSize: responsive.fontSize.medium }]}>{location.description}</Text>
         
         <View style={styles.blogMeta}>
           <View style={styles.authorInfo}>
             <Text style={styles.metaEmoji}>📍</Text>
-            <Text style={styles.authorText}>
+            <Text style={[styles.authorText, { fontSize: responsive.fontSize.small }]}>
               {location.coordinates.latitude.toFixed(4)}, {location.coordinates.longitude.toFixed(4)}
             </Text>
           </View>
           <TouchableOpacity style={styles.dateInfo}>
             <Text style={styles.metaEmoji}>❤️</Text>
-            <Text style={styles.dateText}>Save</Text>
+            <Text style={[styles.dateText, { fontSize: responsive.fontSize.small }]}>Save</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -174,14 +176,18 @@ const BlogScreen = () => {
       </View>
 
 
-      {/* Content */}
-      <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-        {activeTab === 'recommended' ? (
-          recommendedLocations.map(renderLocationCard)
-        ) : (
-          blogPosts.map(renderBlogPost)
-        )}
-      </ScrollView>
+            {/* Content */}
+            <ScrollView 
+              style={styles.content} 
+              showsVerticalScrollIndicator={false}
+              contentContainerStyle={responsive.isTablet ? styles.tabletContentContainer : styles.phoneContentContainer}
+            >
+              {activeTab === 'recommended' ? (
+                recommendedLocations.map(renderLocationCard)
+              ) : (
+                blogPosts.map(renderBlogPost)
+              )}
+            </ScrollView>
       </SafeAreaView>
     </ImageBackground>
   );
@@ -345,6 +351,17 @@ const styles = StyleSheet.create({
     color: '#ffffff',
     fontSize: 14,
     fontWeight: '500',
+  },
+  tabletContentContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-around',
+    paddingHorizontal: 20,
+    paddingBottom: 20,
+  },
+  phoneContentContainer: {
+    paddingHorizontal: 20,
+    paddingBottom: 20,
   },
 });
 
