@@ -64,7 +64,7 @@ const BlogScreen = () => {
   const responsive = useResponsive();
   const [activeTab, setActiveTab] = useState<'recommended' | 'saved'>('recommended');
 
-  // Берем первые 3 локации для Recommended
+  // Take first 3 locations for Recommended
   const recommendedLocations = locations.slice(0, 3);
 
   const renderBlogPost = (post: BlogPost) => (

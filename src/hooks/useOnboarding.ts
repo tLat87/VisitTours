@@ -4,14 +4,14 @@ export const useOnboarding = () => {
   const [isOnboardingComplete, setIsOnboardingComplete] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  // Онбординг всегда показывается
+  // Onboarding always shows
   const completeOnboarding = async () => {
-    // Просто переходим к основному приложению
+    // Simply go to main app
     setIsOnboardingComplete(true);
   };
 
   const resetOnboarding = async () => {
-    // Сбрасываем на онбординг
+    // Reset to onboarding
     setIsOnboardingComplete(false);
   };
 

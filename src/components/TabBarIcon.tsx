@@ -9,12 +9,12 @@ interface TabBarIconProps {
 
 const TabBarIcon: React.FC<TabBarIconProps> = ({ focused, routeName, size = 24 }) => {
   const getIconSource = () => {
-    // Замените пути на ваши PNG изображения
+    // Replace paths with your PNG images
     switch (routeName) {
       case 'Home':
         return focused 
-          ? require('../assets/img/fqwfqwf/Vector-1.png')  // Активная иконка
-          : require('../assets/img/fqwfqwf/Vector-1.png'); // Неактивная иконка
+          ? require('../assets/img/fqwfqwf/Vector-1.png')  // Active icon
+          : require('../assets/img/fqwfqwf/Vector-1.png'); // Inactive icon
       case 'Map':
         return focused 
           ? require('../assets/img/fqwfqwf/Vector-2.png')
@@ -27,6 +27,10 @@ const TabBarIcon: React.FC<TabBarIconProps> = ({ focused, routeName, size = 24 }
         return focused 
           ? require('../assets/img/fqwfqwf/Vector.png')
           : require('../assets/img/fqwfqwf/Vector.png');
+      case 'Profile':
+        return focused 
+          ? require('../assets/img/fqwfqwf/Vector-1.png') // Using existing icon for profile
+          : require('../assets/img/fqwfqwf/Vector-1.png');
       default:
         return require('../assets/img/fqwfqwf/Vector-1.png');
     }
@@ -57,11 +61,11 @@ const styles = StyleSheet.create({
     borderColor: '#333333',
   },
   inactiveButton: {
-    backgroundColor: '#8B4513', // Темно-коричневый цвет как на фото
+    backgroundColor: '#8B4513', // Dark brown color as in photo
     borderColor: '#ffffff',
   },
   icon: {
-    // Дополнительные стили для иконок при необходимости
+    // Additional styles for icons if needed
   },
 });
 

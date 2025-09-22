@@ -14,6 +14,17 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 import { locations, Location } from '../data/locations';
 import LocationDetailModal from '../components/LocationDetailModal';
 import { useResponsive } from '../utils/responsive';
+import { useGame } from '../contexts/GameContext';
+import GameProgress from '../components/GameProgress';
+import AchievementModal from '../components/AchievementModal';
+import QuizModal from '../components/QuizModal';
+import PhotoChallengeModal from '../components/PhotoChallengeModal';
+import WeatherWidget from '../components/WeatherWidget';
+import AIRecommendations from '../components/AIRecommendations';
+import ReviewModal from '../components/ReviewModal';
+import RatingDisplay from '../components/RatingDisplay';
+import AudioGuidePlayer from '../components/AudioGuidePlayer';
+import { audioGuides } from '../data/audioGuides';
 
 const { width } = Dimensions.get('window');
 
@@ -21,16 +32,24 @@ type Category = 'peace' | 'history' | 'liveliness' | 'all';
 
 const HomeScreen = () => {
   const responsive = useResponsive();
+  const { state, visitLocation, startQuiz, completeQuiz, completePhotoChallenge, shareLocation, hideAchievement } = useGame();
   const [selectedCategory, setSelectedCategory] = useState<Category>('all');
   const [likedLocations, setLikedLocations] = useState<Set<string>>(new Set());
   const [selectedLocation, setSelectedLocation] = useState<Location | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
+  const [showQuiz, setShowQuiz] = useState(false);
+  const [showPhotoChallenge, setShowPhotoChallenge] = useState(false);
+  const [selectedPhotoChallenge, setSelectedPhotoChallenge] = useState<any>(null);
+  const [showReview, setShowReview] = useState(false);
+  const [showAudioGuide, setShowAudioGuide] = useState(false);
+  const [selectedAudioGuide, setSelectedAudioGuide] = useState<any>(null);
+  const [showRating, setShowRating] = useState(false);
 
   const categories = [
-    { key: 'peace', label: 'Peace', icon: 'eco' },
-    { key: 'history', label: 'History', icon: 'business' },
+    { key: 'peace', label: 'Peace', icon: '🌿' },
+    { key: 'history', label: 'History', icon: '🏰' },
   
-    // { key: 'all', label: 'All', icon: 'apps' },
+    // { key: 'all', label: 'All', icon: '🌟' },
   ];
 
   const filteredLocations = selectedCategory === 'all' 
@@ -52,6 +71,8 @@ const HomeScreen = () => {
   const handleLocationPress = (location: Location) => {
     setSelectedLocation(location);
     setModalVisible(true);
+    // Mark location as visited
+    visitLocation(location.id);
   };
 
   const handleCloseModal = () => {
@@ -65,11 +86,64 @@ const HomeScreen = () => {
       const result = await Share.default.open({
         title: 'Share Location',
         message: `Check out this amazing place: ${location.title}\n\n${location.description}\n\nCoordinates: ${location.coordinates.latitude.toFixed(4)}, ${location.coordinates.longitude.toFixed(4)}`,
-        url: '', // Можно добавить URL если есть
+        url: '', // Can add URL if available
       });
+      // Award points for sharing
+      shareLocation(location.id);
     } catch (error) {
       console.log('Error sharing:', error);
     }
+  };
+
+  const handleStartQuiz = (locationId: string) => {
+    startQuiz(locationId);
+    setShowQuiz(true);
+  };
+
+  const handleCompleteQuiz = (quizId: string, score: number) => {
+    completeQuiz(quizId, score);
+    setShowQuiz(false);
+  };
+
+  const handleStartPhotoChallenge = (challenge: any) => {
+    setSelectedPhotoChallenge(challenge);
+    setShowPhotoChallenge(true);
+  };
+
+  const handleCompletePhotoChallenge = (challengeId: string, photoUri: string) => {
+    completePhotoChallenge(challengeId, photoUri);
+    setShowPhotoChallenge(false);
+    setSelectedPhotoChallenge(null);
+  };
+
+  const handleStartAudioGuide = (locationId: string) => {
+    const guide = audioGuides.find(ag => ag.locationId === locationId);
+    if (guide) {
+      setSelectedAudioGuide(guide);
+      setShowAudioGuide(true);
+    }
+  };
+
+  const handleCompleteAudioGuide = (guideId: string) => {
+    // Award points for completing audio guide
+    // This would be implemented in the game context
+    setShowAudioGuide(false);
+    setSelectedAudioGuide(null);
+  };
+
+  const handleWriteReview = () => {
+    setShowReview(true);
+  };
+
+  const handleSubmitReview = (rating: number, comment: string) => {
+    // Submit review logic would go here
+    console.log('Review submitted:', { rating, comment });
+    setShowReview(false);
+  };
+
+  const handleWeatherRecommendation = (recommendation: string) => {
+    // Handle weather recommendation
+    console.log('Weather recommendation:', recommendation);
   };
 
   const renderLocationCard = (location: Location) => (
@@ -98,6 +172,42 @@ const HomeScreen = () => {
           <TouchableOpacity style={[styles.moreButton, { height: responsive.buttonHeight }]} onPress={() => handleLocationPress(location)}>
             <Text style={[styles.moreButtonText, { fontSize: responsive.fontSize.small }]}>More</Text>
           </TouchableOpacity>
+          
+          {/* Game Actions */}
+          <View style={styles.gameActions}>
+            <TouchableOpacity 
+              style={styles.gameButton} 
+              onPress={() => handleStartQuiz(location.id)}
+            >
+              <Text style={styles.gameButtonEmoji}>🧠</Text>
+            </TouchableOpacity>
+            <TouchableOpacity 
+              style={styles.gameButton} 
+              onPress={() => {
+                const challenge = state.photoChallenges.find(pc => pc.locationId === location.id);
+                if (challenge) handleStartPhotoChallenge(challenge);
+              }}
+            >
+              <Text style={styles.gameButtonEmoji}>📸</Text>
+            </TouchableOpacity>
+            <TouchableOpacity 
+              style={styles.gameButton} 
+              onPress={() => handleStartAudioGuide(location.id)}
+            >
+              <Text style={styles.gameButtonEmoji}>🎧</Text>
+            </TouchableOpacity>
+            <TouchableOpacity 
+              style={styles.gameButton} 
+              onPress={handleWriteReview}
+            >
+              <Text style={styles.gameButtonEmoji}>⭐</Text>
+            </TouchableOpacity>
+            {state.userProgress.visitedLocations.has(location.id) && (
+              <View style={styles.visitedBadge}>
+                <Text style={styles.visitedEmoji}>✅</Text>
+              </View>
+            )}
+          </View>
         </View>
       </View>
     </TouchableOpacity>
@@ -113,43 +223,57 @@ const HomeScreen = () => {
       <View style={styles.overlay} />
       
       <SafeAreaView style={styles.safeArea}>
-        {/* Header */}
-        <View style={styles.header}>
-          <Image source={require('../assets/img/ico.png')} style={styles.logo} />
-        </View>
+        <ScrollView 
+          style={styles.scrollContainer}
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={styles.scrollContent}
+        >
+          {/* Header */}
+          <View style={styles.header}>
+            <Image source={require('../assets/img/ico.png')} style={styles.logo} />
+          </View>
 
-      {/* Category Filters */}
-      <View style={styles.categoryContainer}>
-        {categories.map((category) => (
-          <TouchableOpacity
-            key={category.key}
-            style={[
-              styles.categoryButton,
-              selectedCategory === category.key && styles.categoryButtonActive
-            ]}
-            onPress={() => setSelectedCategory(category.key as Category)}
-          >
-            <Text style={styles.categoryEmoji}>
-              {category.key === 'peace' ? '🌿' : 
-               category.key === 'history' ? '🏰' : 
-               category.key === 'liveliness' ? '🎉' : '🌟'}
-            </Text>
-            <Text style={[
-              styles.categoryText,
-              selectedCategory === category.key && styles.categoryTextActive
-            ]}>
-              {category.label}
-            </Text>
-          </TouchableOpacity>
-        ))}
-      </View>
+          {/* Game Progress */}
+          <GameProgress 
+            userProgress={state.userProgress} 
+            onPress={() => {/* Navigate to profile */}} 
+          />
+
+          {/* Weather Widget */}
+          <WeatherWidget onRecommendationPress={handleWeatherRecommendation} />
+
+          {/* AI Recommendations */}
+          <AIRecommendations 
+            locations={locations} 
+            onLocationPress={handleLocationPress} 
+          />
+
+          {/* Category Filters */}
+          <View style={styles.categoryContainer}>
+            {categories.map((category) => (
+              <TouchableOpacity
+                key={category.key}
+                style={[
+                  styles.categoryButton,
+                  selectedCategory === category.key && styles.categoryButtonActive
+                ]}
+                onPress={() => setSelectedCategory(category.key as Category)}
+              >
+                <Text style={styles.categoryEmoji}>
+                  {category.icon}
+                </Text>
+                <Text style={[
+                  styles.categoryText,
+                  selectedCategory === category.key && styles.categoryTextActive
+                ]}>
+                  {category.label}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View>
 
           {/* Content */}
-          <ScrollView 
-            style={styles.content} 
-            showsVerticalScrollIndicator={false}
-            contentContainerStyle={responsive.isTablet ? styles.tabletContentContainer : styles.phoneContentContainer}
-          >
+          <View style={styles.content}>
             {filteredLocations.length === 0 ? (
               <View style={styles.emptyState}>
                 <View style={[styles.emptyCard, { maxWidth: responsive.cardMaxWidth }]}>
@@ -166,7 +290,8 @@ const HomeScreen = () => {
             ) : (
               filteredLocations.map(renderLocationCard)
             )}
-          </ScrollView>
+          </View>
+        </ScrollView>
 
       {/* Location Detail Modal */}
       <LocationDetailModal
@@ -176,6 +301,51 @@ const HomeScreen = () => {
         onLike={toggleLike}
         onShare={handleShare}
         isLiked={selectedLocation ? likedLocations.has(selectedLocation.id) : false}
+      />
+
+      {/* Achievement Modal */}
+      <AchievementModal
+        visible={!!state.showAchievement}
+        achievement={state.showAchievement}
+        onClose={hideAchievement}
+      />
+
+      {/* Quiz Modal */}
+      <QuizModal
+        visible={showQuiz}
+        question={state.currentQuiz}
+        onClose={() => setShowQuiz(false)}
+        onComplete={handleCompleteQuiz}
+      />
+
+      {/* Photo Challenge Modal */}
+      <PhotoChallengeModal
+        visible={showPhotoChallenge}
+        challenge={selectedPhotoChallenge}
+        onClose={() => {
+          setShowPhotoChallenge(false);
+          setSelectedPhotoChallenge(null);
+        }}
+        onComplete={handleCompletePhotoChallenge}
+      />
+
+      {/* Review Modal */}
+      <ReviewModal
+        visible={showReview}
+        location={selectedLocation}
+        onClose={() => setShowReview(false)}
+        onSubmit={handleSubmitReview}
+      />
+
+      {/* Audio Guide Player */}
+      <AudioGuidePlayer
+        visible={showAudioGuide}
+        audioGuide={selectedAudioGuide}
+        onClose={() => {
+          setShowAudioGuide(false);
+          setSelectedAudioGuide(null);
+        }}
+        onComplete={handleCompleteAudioGuide}
       />
       </SafeAreaView>
     </ImageBackground>
@@ -192,6 +362,12 @@ const styles = StyleSheet.create({
   },
   safeArea: {
     flex: 1,
+  },
+  scrollContainer: {
+    flex: 1,
+  },
+  scrollContent: {
+    paddingBottom: 20,
   },
   header: {
     paddingHorizontal: 20,
@@ -358,6 +534,37 @@ const styles = StyleSheet.create({
   phoneContentContainer: {
     paddingHorizontal: 20,
     paddingBottom: 20,
+  },
+  gameActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 10,
+    gap: 8,
+    flexWrap: 'wrap',
+  },
+  gameButton: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: '#333333',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  visitedBadge: {
+    width: 35,
+    height: 35,
+    borderRadius: 17.5,
+    backgroundColor: '#1a3a1a',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 2,
+    borderColor: '#4CAF50',
+  },
+  gameButtonEmoji: {
+    fontSize: 16,
+  },
+  visitedEmoji: {
+    fontSize: 16,
   },
 });
 

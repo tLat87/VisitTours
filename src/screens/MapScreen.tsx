@@ -10,9 +10,9 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
-import Icon from 'react-native-vector-icons/MaterialIcons';
 import { locations, Location } from '../data/locations';
 import { useResponsive } from '../utils/responsive';
+import ARCamera from '../components/ARCamera';
 
 const { width, height } = Dimensions.get('window');
 
@@ -20,6 +20,8 @@ const MapScreen = () => {
   const responsive = useResponsive();
   const [selectedLocation, setSelectedLocation] = useState<Location | null>(null);
   const [showCard, setShowCard] = useState(false);
+  const [showAR, setShowAR] = useState(false);
+  const [userLocation, setUserLocation] = useState<{ latitude: number; longitude: number } | undefined>();
 
   // Debug: log locations
   console.log('MapScreen locations:', locations.length);
@@ -40,11 +42,17 @@ const MapScreen = () => {
       const result = await Share.default.open({
         title: 'Share Location',
         message: `Check out this amazing place: ${location.title}\n\n${location.fullDescription}\n\nCoordinates: ${location.coordinates.latitude.toFixed(4)}, ${location.coordinates.longitude.toFixed(4)}`,
-        url: '', // Можно добавить URL если есть
+        url: '', // Can add URL if available
       });
     } catch (error) {
       console.log('Error sharing:', error);
     }
+  };
+
+
+  const handleLocationPress = (location: Location) => {
+    setSelectedLocation(location);
+    setShowCard(true);
   };
 
   const renderLocationCard = () => {
@@ -97,8 +105,15 @@ const MapScreen = () => {
       <SafeAreaView style={styles.safeArea}>
         {/* Header */}
         <View style={styles.header}>
-                    <Image source={require('../assets/img/ico.png')} style={styles.logo} />
-
+          <Image source={require('../assets/img/ico.png')} style={styles.logo} />
+          
+          {/* AR Button */}
+          {/* <TouchableOpacity
+            style={styles.arButton}
+            onPress={() => setShowAR(true)}
+          >
+            <Text style={styles.arEmoji}>📸</Text>
+          </TouchableOpacity> */}
         </View>
 
 
@@ -115,193 +130,6 @@ const MapScreen = () => {
           mapType="standard"
           showsUserLocation={true}
           showsMyLocationButton={true}
-          // Temporarily disable dark theme to debug
-          /*customMapStyle={[
-            {
-              "elementType": "geometry",
-              "stylers": [
-                {
-                  "color": "#212121"
-                }
-              ]
-            },
-            {
-              "elementType": "labels.icon",
-              "stylers": [
-                {
-                  "visibility": "off"
-                }
-              ]
-            },
-            {
-              "elementType": "labels.text.fill",
-              "stylers": [
-                {
-                  "color": "#757575"
-                }
-              ]
-            },
-            {
-              "elementType": "labels.text.stroke",
-              "stylers": [
-                {
-                  "color": "#212121"
-                }
-              ]
-            },
-            {
-              "featureType": "administrative",
-              "elementType": "geometry",
-              "stylers": [
-                {
-                  "color": "#757575"
-                }
-              ]
-            },
-            {
-              "featureType": "administrative.country",
-              "elementType": "labels.text.fill",
-              "stylers": [
-                {
-                  "color": "#9e9e9e"
-                }
-              ]
-            },
-            {
-              "featureType": "administrative.land_parcel",
-              "stylers": [
-                {
-                  "visibility": "off"
-                }
-              ]
-            },
-            {
-              "featureType": "administrative.locality",
-              "elementType": "labels.text.fill",
-              "stylers": [
-                {
-                  "color": "#bdbdbd"
-                }
-              ]
-            },
-            {
-              "featureType": "poi",
-              "elementType": "labels.text.fill",
-              "stylers": [
-                {
-                  "color": "#757575"
-                }
-              ]
-            },
-            {
-              "featureType": "poi.park",
-              "elementType": "geometry",
-              "stylers": [
-                {
-                  "color": "#181818"
-                }
-              ]
-            },
-            {
-              "featureType": "poi.park",
-              "elementType": "labels.text.fill",
-              "stylers": [
-                {
-                  "color": "#616161"
-                }
-              ]
-            },
-            {
-              "featureType": "poi.park",
-              "elementType": "labels.text.stroke",
-              "stylers": [
-                {
-                  "color": "#1b1b1b"
-                }
-              ]
-            },
-            {
-              "featureType": "road",
-              "elementType": "geometry.fill",
-              "stylers": [
-                {
-                  "color": "#2c2c2c"
-                }
-              ]
-            },
-            {
-              "featureType": "road",
-              "elementType": "labels.text.fill",
-              "stylers": [
-                {
-                  "color": "#8a8a8a"
-                }
-              ]
-            },
-            {
-              "featureType": "road.arterial",
-              "elementType": "geometry",
-              "stylers": [
-                {
-                  "color": "#373737"
-                }
-              ]
-            },
-            {
-              "featureType": "road.highway",
-              "elementType": "geometry",
-              "stylers": [
-                {
-                  "color": "#3c3c3c"
-                }
-              ]
-            },
-            {
-              "featureType": "road.highway.controlled_access",
-              "elementType": "geometry",
-              "stylers": [
-                {
-                  "color": "#4e4e4e"
-                }
-              ]
-            },
-            {
-              "featureType": "road.local",
-              "elementType": "labels.text.fill",
-              "stylers": [
-                {
-                  "color": "#616161"
-                }
-              ]
-            },
-            {
-              "featureType": "transit",
-              "elementType": "labels.text.fill",
-              "stylers": [
-                {
-                  "color": "#757575"
-                }
-              ]
-            },
-            {
-              "featureType": "water",
-              "elementType": "geometry",
-              "stylers": [
-                {
-                  "color": "#000000"
-                }
-              ]
-            },
-            {
-              "featureType": "water",
-              "elementType": "labels.text.fill",
-              "stylers": [
-                {
-                  "color": "#3d3d3d"
-                }
-              ]
-            }
-          ]}*/
         >
           {locations.map((location) => (
             <Marker
@@ -324,6 +152,14 @@ const MapScreen = () => {
 
       {/* Location Card Overlay */}
       {renderLocationCard()}
+
+      {/* AR Camera */}
+      <ARCamera
+        visible={showAR}
+        locationId={selectedLocation?.id || '1'}
+        onClose={() => setShowAR(false)}
+        onTreasureFound={() => {}}
+      />
       </SafeAreaView>
     </ImageBackground>
   );
@@ -344,6 +180,19 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingVertical: 20,
     alignItems: 'center',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  arButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: '#9C27B0',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  arEmoji: {
+    fontSize: 20,
   },
   logoContainer: {
     alignItems: 'center',

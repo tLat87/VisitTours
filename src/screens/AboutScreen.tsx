@@ -65,7 +65,7 @@ const AboutScreen = () => {
           {/* Image */}
           <View style={[styles.imageContainer, { height: responsive.imageHeight }]}>
             <ImageBackground 
-              source={require('../assets/img/fb379a3b00e9da2a210056ff53d6130c4e9fc572.png')} // Временный плейсхолдер - замените на изображение Clock Tower
+              source={require('../assets/img/fb379a3b00e9da2a210056ff53d6130c4e9fc572.png')} // Temporary placeholder - replace with Clock Tower image
               style={styles.image}
               resizeMode="cover"
             />

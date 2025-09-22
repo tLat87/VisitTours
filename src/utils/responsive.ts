@@ -2,7 +2,7 @@ import { Dimensions, Platform } from 'react-native';
 
 const { width, height } = Dimensions.get('window');
 
-// Определяем тип устройства
+// Determine device type
 export const getDeviceType = () => {
   const aspectRatio = height / width;
   
@@ -29,7 +29,7 @@ export const getDeviceType = () => {
   }
 };
 
-// Определяем размеры для разных устройств
+// Define sizes for different devices
 export const getResponsiveDimensions = () => {
   const deviceType = getDeviceType();
   
@@ -137,7 +137,7 @@ export const getResponsiveDimensions = () => {
   }
 };
 
-// Хук для использования в компонентах
+// Hook for use in components
 export const useResponsive = () => {
   return getResponsiveDimensions();
 };

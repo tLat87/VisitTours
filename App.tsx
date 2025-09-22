@@ -9,6 +9,7 @@ import HomeScreen from './src/screens/HomeScreen';
 import MapScreen from './src/screens/MapScreen';
 import BlogScreen from './src/screens/BlogScreen';
 import AboutScreen from './src/screens/AboutScreen';
+import ProfileScreen from './src/screens/ProfileScreen';
 import OnboardingScreen from './src/components/OnboardingScreen';
 
 // Import hooks
@@ -16,6 +17,9 @@ import { useOnboarding } from './src/hooks/useOnboarding';
 
 // Import components
 import TabBarIcon from './src/components/TabBarIcon';
+
+// Import contexts
+import { GameProvider } from './src/contexts/GameContext';
 
 const Tab = createBottomTabNavigator();
 
@@ -45,8 +49,9 @@ const App = () => {
   return (
     <SafeAreaProvider>
       <StatusBar barStyle="light-content" backgroundColor="#1a1a1a" />
-      <NavigationContainer>
-        <Tab.Navigator
+      <GameProvider>
+        <NavigationContainer>
+          <Tab.Navigator
           screenOptions={({ route }) => ({
             tabBarIcon: ({ focused, color, size }) => (
               <TabBarIcon 
@@ -107,8 +112,17 @@ const App = () => {
               headerShown: false 
             }} 
           />
+          <Tab.Screen 
+            name="Profile" 
+            component={ProfileScreen} 
+            options={{ 
+              title: 'Profile',
+              headerShown: false 
+            }} 
+          />
         </Tab.Navigator>
       </NavigationContainer>
+      </GameProvider>
     </SafeAreaProvider>
   );
 };
