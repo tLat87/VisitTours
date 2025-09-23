@@ -30,20 +30,13 @@ const PhotoChallengeModal: React.FC<PhotoChallengeModalProps> = ({
 
   const handleTakePhoto = () => {
     // In a real app, this would open the camera
-    // For now, we'll simulate with a placeholder
     Alert.alert(
       'Camera',
-      'Camera function will be added in the next version. For now, using demo photo.',
+      'Camera function will be added in the next version.',
       [
         {
-          text: 'Cancel',
-          style: 'cancel',
-        },
-        {
-          text: 'Use Demo',
-          onPress: () => {
-            setPhotoUri('demo_photo_uri');
-          },
+          text: 'OK',
+          style: 'default',
         },
       ]
     );
@@ -79,50 +72,38 @@ const PhotoChallengeModal: React.FC<PhotoChallengeModalProps> = ({
               <Text style={styles.challengeTitle}>{challenge.title}</Text>
               <Text style={styles.challengeDescription}>{challenge.description}</Text>
               
+              <View style={styles.instructionsContainer}>
+                <Text style={styles.instructionsTitle}>📸 Photo Challenge Instructions:</Text>
+                <Text style={styles.instructionText}>
+                  • Take a photo at this location
+                </Text>
+                <Text style={styles.instructionText}>
+                  • Post it on your social media
+                </Text>
+                <Text style={styles.instructionText}>
+                  • Tag the location and use hashtags
+                </Text>
+                <Text style={styles.instructionText}>
+                  • Share your experience with others
+                </Text>
+              </View>
+              
               <View style={styles.pointsContainer}>
                 <Text style={styles.starEmoji}>⭐</Text>
                 <Text style={styles.pointsText}>+{challenge.points} points</Text>
               </View>
             </View>
 
-            <View style={styles.photoContainer}>
-              {photoUri ? (
-                <View style={styles.photoPreview}>
-                  <Image
-                    source={{ uri: photoUri }}
-                    style={styles.photo}
-                    resizeMode="cover"
-                  />
-                  <View style={styles.photoOverlay}>
-                    <Text style={styles.checkEmoji}>✅</Text>
-                    <Text style={styles.photoSuccessText}>Photo Ready!</Text>
-                  </View>
-                </View>
-              ) : (
-                <TouchableOpacity style={styles.cameraButton} onPress={handleTakePhoto}>
-                  <Text style={styles.cameraEmoji}>📸</Text>
-                  <Text style={styles.cameraButtonText}>Take Photo</Text>
-                </TouchableOpacity>
-              )}
-            </View>
-
             <View style={styles.actions}>
-              {photoUri ? (
-                <TouchableOpacity
-                  style={styles.completeButton}
-                  onPress={handleCompleteChallenge}
-                >
-                  <Text style={styles.completeButtonText}>Complete Challenge</Text>
-                </TouchableOpacity>
-              ) : (
-                <TouchableOpacity
-                  style={styles.takePhotoButton}
-                  onPress={handleTakePhoto}
-                >
-                  <Text style={styles.cameraButtonEmoji}>📸</Text>
-                  <Text style={styles.takePhotoButtonText}>Take Photo</Text>
-                </TouchableOpacity>
-              )}
+              <TouchableOpacity
+                style={styles.completeButton}
+                onPress={() => {
+                  onComplete(challenge.id, 'social_media_post');
+                  onClose();
+                }}
+              >
+                <Text style={styles.completeButtonText}>Mark as Completed</Text>
+              </TouchableOpacity>
             </View>
           </View>
         </View>
@@ -290,6 +271,24 @@ const styles = StyleSheet.create({
   cameraButtonEmoji: {
     fontSize: 20,
     marginRight: 10,
+  },
+  instructionsContainer: {
+    backgroundColor: '#2a2a2a',
+    borderRadius: 12,
+    padding: 16,
+    marginVertical: 16,
+  },
+  instructionsTitle: {
+    color: '#ffffff',
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginBottom: 12,
+  },
+  instructionText: {
+    color: '#cccccc',
+    fontSize: 14,
+    marginBottom: 8,
+    lineHeight: 20,
   },
 });
 

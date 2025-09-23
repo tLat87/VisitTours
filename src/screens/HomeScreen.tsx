@@ -17,14 +17,11 @@ import { useResponsive } from '../utils/responsive';
 import { useGame } from '../contexts/GameContext';
 import GameProgress from '../components/GameProgress';
 import AchievementModal from '../components/AchievementModal';
-import QuizModal from '../components/QuizModal';
 import PhotoChallengeModal from '../components/PhotoChallengeModal';
 import WeatherWidget from '../components/WeatherWidget';
 import AIRecommendations from '../components/AIRecommendations';
 import ReviewModal from '../components/ReviewModal';
 import RatingDisplay from '../components/RatingDisplay';
-import AudioGuidePlayer from '../components/AudioGuidePlayer';
-import { audioGuides } from '../data/audioGuides';
 
 const { width } = Dimensions.get('window');
 
@@ -32,17 +29,14 @@ type Category = 'peace' | 'history' | 'liveliness' | 'all';
 
 const HomeScreen = () => {
   const responsive = useResponsive();
-  const { state, visitLocation, startQuiz, completeQuiz, completePhotoChallenge, shareLocation, hideAchievement } = useGame();
+  const { state, visitLocation, completePhotoChallenge, shareLocation, hideAchievement } = useGame();
   const [selectedCategory, setSelectedCategory] = useState<Category>('all');
   const [likedLocations, setLikedLocations] = useState<Set<string>>(new Set());
   const [selectedLocation, setSelectedLocation] = useState<Location | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
-  const [showQuiz, setShowQuiz] = useState(false);
   const [showPhotoChallenge, setShowPhotoChallenge] = useState(false);
   const [selectedPhotoChallenge, setSelectedPhotoChallenge] = useState<any>(null);
   const [showReview, setShowReview] = useState(false);
-  const [showAudioGuide, setShowAudioGuide] = useState(false);
-  const [selectedAudioGuide, setSelectedAudioGuide] = useState<any>(null);
   const [showRating, setShowRating] = useState(false);
 
   const categories = [
@@ -95,15 +89,6 @@ const HomeScreen = () => {
     }
   };
 
-  const handleStartQuiz = (locationId: string) => {
-    startQuiz(locationId);
-    setShowQuiz(true);
-  };
-
-  const handleCompleteQuiz = (quizId: string, score: number) => {
-    completeQuiz(quizId, score);
-    setShowQuiz(false);
-  };
 
   const handleStartPhotoChallenge = (challenge: any) => {
     setSelectedPhotoChallenge(challenge);
@@ -116,20 +101,6 @@ const HomeScreen = () => {
     setSelectedPhotoChallenge(null);
   };
 
-  const handleStartAudioGuide = (locationId: string) => {
-    const guide = audioGuides.find(ag => ag.locationId === locationId);
-    if (guide) {
-      setSelectedAudioGuide(guide);
-      setShowAudioGuide(true);
-    }
-  };
-
-  const handleCompleteAudioGuide = (guideId: string) => {
-    // Award points for completing audio guide
-    // This would be implemented in the game context
-    setShowAudioGuide(false);
-    setSelectedAudioGuide(null);
-  };
 
   const handleWriteReview = () => {
     setShowReview(true);
@@ -177,24 +148,12 @@ const HomeScreen = () => {
           <View style={styles.gameActions}>
             <TouchableOpacity 
               style={styles.gameButton} 
-              onPress={() => handleStartQuiz(location.id)}
-            >
-              <Text style={styles.gameButtonEmoji}>🧠</Text>
-            </TouchableOpacity>
-            <TouchableOpacity 
-              style={styles.gameButton} 
               onPress={() => {
                 const challenge = state.photoChallenges.find(pc => pc.locationId === location.id);
                 if (challenge) handleStartPhotoChallenge(challenge);
               }}
             >
               <Text style={styles.gameButtonEmoji}>📸</Text>
-            </TouchableOpacity>
-            <TouchableOpacity 
-              style={styles.gameButton} 
-              onPress={() => handleStartAudioGuide(location.id)}
-            >
-              <Text style={styles.gameButtonEmoji}>🎧</Text>
             </TouchableOpacity>
             <TouchableOpacity 
               style={styles.gameButton} 
@@ -310,14 +269,6 @@ const HomeScreen = () => {
         onClose={hideAchievement}
       />
 
-      {/* Quiz Modal */}
-      <QuizModal
-        visible={showQuiz}
-        question={state.currentQuiz}
-        onClose={() => setShowQuiz(false)}
-        onComplete={handleCompleteQuiz}
-      />
-
       {/* Photo Challenge Modal */}
       <PhotoChallengeModal
         visible={showPhotoChallenge}
@@ -335,17 +286,6 @@ const HomeScreen = () => {
         location={selectedLocation}
         onClose={() => setShowReview(false)}
         onSubmit={handleSubmitReview}
-      />
-
-      {/* Audio Guide Player */}
-      <AudioGuidePlayer
-        visible={showAudioGuide}
-        audioGuide={selectedAudioGuide}
-        onClose={() => {
-          setShowAudioGuide(false);
-          setSelectedAudioGuide(null);
-        }}
-        onComplete={handleCompleteAudioGuide}
       />
       </SafeAreaView>
     </ImageBackground>

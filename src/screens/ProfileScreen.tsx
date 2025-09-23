@@ -95,12 +95,12 @@ const ProfileScreen = () => {
             </Text>
           </View>
           <View style={styles.statCard}>
-            <Text style={styles.statEmoji}>🧠</Text>
+            <Text style={styles.statEmoji}>📸</Text>
             <Text style={[styles.statValue, { fontSize: responsive.fontSize.xlarge }]}>
-              {userProgress.completedQuizzes.size}
+              {userProgress.completedPhotoChallenges.size}
             </Text>
             <Text style={[styles.statLabel, { fontSize: responsive.fontSize.small }]}>
-              Quizzes
+              Photo Challenges
             </Text>
           </View>
         </View>

@@ -7,7 +7,7 @@ export interface Achievement {
   unlocked: boolean;
   unlockedAt?: Date;
   requirement: {
-    type: 'visit_locations' | 'visit_category' | 'complete_quiz' | 'take_photos' | 'share_locations';
+    type: 'visit_locations' | 'visit_category' | 'complete_photo_challenge' | 'take_photos' | 'share_locations';
     value: number;
     category?: string;
   };
@@ -17,21 +17,12 @@ export interface UserProgress {
   totalPoints: number;
   level: number;
   visitedLocations: Set<string>;
-  completedQuizzes: Set<string>;
+  completedPhotoChallenges: Set<string>;
   achievements: Achievement[];
   streak: number;
   lastVisitDate?: Date;
 }
 
-export interface QuizQuestion {
-  id: string;
-  locationId: string;
-  question: string;
-  options: string[];
-  correctAnswer: number;
-  points: number;
-  explanation: string;
-}
 
 export interface PhotoChallenge {
   id: string;

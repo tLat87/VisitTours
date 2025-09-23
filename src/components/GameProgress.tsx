@@ -53,8 +53,8 @@ const GameProgress: React.FC<GameProgressProps> = ({ userProgress, onPress }) =>
           <Text style={styles.statText}>{userProgress.visitedLocations.size}</Text>
         </View>
         <View style={styles.statItem}>
-          <Text style={styles.statEmoji}>🧠</Text>
-          <Text style={styles.statText}>{userProgress.completedQuizzes.size}</Text>
+          <Text style={styles.statEmoji}>📸</Text>
+          <Text style={styles.statText}>{userProgress.completedPhotoChallenges.size}</Text>
         </View>
         <View style={styles.statItem}>
           <Text style={styles.statEmoji}>🔥</Text>

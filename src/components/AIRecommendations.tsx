@@ -42,7 +42,7 @@ const AIRecommendations: React.FC<AIRecommendationsProps> = ({
   const generateRecommendations = () => {
     // Simulate AI analysis based on user behavior
     const userVisited = state.userProgress.visitedLocations;
-    const userCompletedQuizzes = state.userProgress.completedQuizzes;
+    const userCompletedPhotoChallenges = state.userProgress.completedPhotoChallenges;
     const userPoints = state.userProgress.totalPoints;
     
     const newRecommendations: AIRecommendation[] = [];
@@ -107,16 +107,16 @@ const AIRecommendations: React.FC<AIRecommendationsProps> = ({
         });
       }
 
-      // Recommend based on quiz performance
-      if (userCompletedQuizzes.size > 0) {
+      // Recommend based on photo challenge performance
+      if (userCompletedPhotoChallenges.size > 0) {
         newRecommendations.push({
-          id: 'quiz_enthusiast',
-          title: 'Quiz Enthusiast',
-          description: 'Continue learning history through quizzes',
-          reason: `You completed ${userCompletedQuizzes.size} quizzes`,
+          id: 'photo_enthusiast',
+          title: 'Photo Enthusiast',
+          description: 'Continue sharing amazing photos from historical places',
+          reason: `You completed ${userCompletedPhotoChallenges.size} photo challenges`,
           locations: locations.filter(l => l.category === 'history').slice(0, 2),
           priority: 'medium',
-          category: 'quiz'
+          category: 'photo'
         });
       }
 
@@ -154,7 +154,7 @@ const AIRecommendations: React.FC<AIRecommendationsProps> = ({
       case 'history': return '🏰';
       case 'liveliness': return '🎉';
       case 'unexplored': return '🔍';
-      case 'quiz': return '🧠';
+      case 'photo': return '📸';
       case 'achievement': return '🏆';
       default: return '💡';
     }

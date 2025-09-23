@@ -1,22 +1,19 @@
 import React, { createContext, useContext, useReducer, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { UserProgress, Achievement, QuizQuestion, PhotoChallenge } from '../types/game';
-import { achievements, quizQuestions, photoChallenges } from '../data/gameData';
+import { UserProgress, Achievement, PhotoChallenge } from '../types/game';
+import { achievements, photoChallenges } from '../data/gameData';
 
 interface GameState {
   userProgress: UserProgress;
-  currentQuiz: QuizQuestion | null;
   photoChallenges: PhotoChallenge[];
   showAchievement: Achievement | null;
 }
 
 type GameAction =
   | { type: 'VISIT_LOCATION'; locationId: string }
-  | { type: 'COMPLETE_QUIZ'; quizId: string; score: number }
   | { type: 'COMPLETE_PHOTO_CHALLENGE'; challengeId: string; photoUri: string }
   | { type: 'SHARE_LOCATION'; locationId: string }
   | { type: 'UNLOCK_ACHIEVEMENT'; achievement: Achievement }
-  | { type: 'SET_CURRENT_QUIZ'; quiz: QuizQuestion | null }
   | { type: 'LOAD_GAME_DATA'; data: GameState }
   | { type: 'HIDE_ACHIEVEMENT' };
 
@@ -25,11 +22,10 @@ const initialState: GameState = {
     totalPoints: 0,
     level: 1,
     visitedLocations: new Set(),
-    completedQuizzes: new Set(),
+    completedPhotoChallenges: new Set(),
     achievements: achievements.map(a => ({ ...a, unlocked: false })),
     streak: 0,
   },
-  currentQuiz: null,
   photoChallenges: photoChallenges.map(pc => ({ ...pc, completed: false })),
   showAchievement: null,
 };
@@ -57,8 +53,8 @@ function checkAchievements(userProgress: UserProgress): Achievement[] {
         }).length;
         shouldUnlock = categoryVisits >= achievement.requirement.value;
         break;
-      case 'complete_quiz':
-        shouldUnlock = userProgress.completedQuizzes.size >= achievement.requirement.value;
+      case 'complete_photo_challenge':
+        shouldUnlock = userProgress.completedPhotoChallenges.size >= achievement.requirement.value;
         break;
       case 'take_photos':
         const completedPhotos = photoChallenges.filter(pc => pc.completed).length;
@@ -113,25 +109,11 @@ function gameReducer(state: GameState, action: GameAction): GameState {
       };
     }
     
-    case 'COMPLETE_QUIZ': {
-      const newCompletedQuizzes = new Set(state.userProgress.completedQuizzes);
-      newCompletedQuizzes.add(action.quizId);
-      
-      const newUserProgress = {
-        ...state.userProgress,
-        completedQuizzes: newCompletedQuizzes,
-        totalPoints: state.userProgress.totalPoints + action.score,
-        level: calculateLevel(state.userProgress.totalPoints + action.score),
-      };
-      
-      return {
-        ...state,
-        userProgress: newUserProgress,
-        currentQuiz: null,
-      };
-    }
     
     case 'COMPLETE_PHOTO_CHALLENGE': {
+      const newCompletedPhotoChallenges = new Set(state.userProgress.completedPhotoChallenges);
+      newCompletedPhotoChallenges.add(action.challengeId);
+      
       const updatedChallenges = state.photoChallenges.map(challenge =>
         challenge.id === action.challengeId
           ? { ...challenge, completed: true, photoUri: action.photoUri }
@@ -143,6 +125,7 @@ function gameReducer(state: GameState, action: GameAction): GameState {
       
       const newUserProgress = {
         ...state.userProgress,
+        completedPhotoChallenges: newCompletedPhotoChallenges,
         totalPoints: state.userProgress.totalPoints + points,
         level: calculateLevel(state.userProgress.totalPoints + points),
       };
@@ -167,11 +150,6 @@ function gameReducer(state: GameState, action: GameAction): GameState {
       };
     }
     
-    case 'SET_CURRENT_QUIZ':
-      return {
-        ...state,
-        currentQuiz: action.quiz,
-      };
     
     case 'LOAD_GAME_DATA':
       return action.data;
@@ -191,8 +169,6 @@ const GameContext = createContext<{
   state: GameState;
   dispatch: React.Dispatch<GameAction>;
   visitLocation: (locationId: string) => void;
-  startQuiz: (locationId: string) => void;
-  completeQuiz: (quizId: string, score: number) => void;
   completePhotoChallenge: (challengeId: string, photoUri: string) => void;
   shareLocation: (locationId: string) => void;
   hideAchievement: () => void;
@@ -216,7 +192,7 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
         const parsedData = JSON.parse(savedData);
         // Convert Sets back from arrays
         parsedData.userProgress.visitedLocations = new Set(parsedData.userProgress.visitedLocations);
-        parsedData.userProgress.completedQuizzes = new Set(parsedData.userProgress.completedQuizzes);
+        parsedData.userProgress.completedPhotoChallenges = new Set(parsedData.userProgress.completedPhotoChallenges || []);
         dispatch({ type: 'LOAD_GAME_DATA', data: parsedData });
       }
     } catch (error) {
@@ -231,7 +207,7 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
         userProgress: {
           ...state.userProgress,
           visitedLocations: Array.from(state.userProgress.visitedLocations),
-          completedQuizzes: Array.from(state.userProgress.completedQuizzes),
+          completedPhotoChallenges: Array.from(state.userProgress.completedPhotoChallenges),
         },
       };
       await AsyncStorage.setItem('gameData', JSON.stringify(dataToSave));
@@ -244,16 +220,6 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
     dispatch({ type: 'VISIT_LOCATION', locationId });
   };
 
-  const startQuiz = (locationId: string) => {
-    const quiz = quizQuestions.find(q => q.locationId === locationId);
-    if (quiz) {
-      dispatch({ type: 'SET_CURRENT_QUIZ', quiz });
-    }
-  };
-
-  const completeQuiz = (quizId: string, score: number) => {
-    dispatch({ type: 'COMPLETE_QUIZ', quizId, score });
-  };
 
   const completePhotoChallenge = (challengeId: string, photoUri: string) => {
     dispatch({ type: 'COMPLETE_PHOTO_CHALLENGE', challengeId, photoUri });
@@ -273,8 +239,6 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
         state,
         dispatch,
         visitLocation,
-        startQuiz,
-        completeQuiz,
         completePhotoChallenge,
         shareLocation,
         hideAchievement,

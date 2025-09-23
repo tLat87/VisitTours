@@ -1,4 +1,4 @@
-import { Achievement, QuizQuestion, PhotoChallenge } from '../types/game';
+import { Achievement, PhotoChallenge } from '../types/game';
 
 export const achievements: Achievement[] = [
   {
@@ -65,14 +65,14 @@ export const achievements: Achievement[] = [
     }
   },
   {
-    id: 'quiz_master',
-    title: 'Quiz Master',
-    description: 'Complete 3 quizzes',
-    icon: '🧠',
+    id: 'photo_master',
+    title: 'Photo Master',
+    description: 'Complete 3 photo challenges',
+    icon: '📸',
     points: 75,
     unlocked: false,
     requirement: {
-      type: 'complete_quiz',
+      type: 'complete_photo_challenge',
       value: 3
     }
   },
@@ -102,53 +102,6 @@ export const achievements: Achievement[] = [
   }
 ];
 
-export const quizQuestions: QuizQuestion[] = [
-  {
-    id: 'q1',
-    locationId: '4',
-    question: 'In what year was the Discover Downham Heritage Centre built?',
-    options: ['1887', '1923', '1956', '2001'],
-    correctAnswer: 0,
-    points: 10,
-    explanation: 'The Heritage Centre was created in the building of a former fire station, built in 1887.'
-  },
-  {
-    id: 'q2',
-    locationId: '5',
-    question: 'What material was used to build the Town Hall?',
-    options: ['Brick', 'Carrstone', 'Wood', 'Marble'],
-    correctAnswer: 1,
-    points: 10,
-    explanation: 'Town Hall is built from local carrstone, which gave the town the nickname "Gingerbread Town".'
-  },
-  {
-    id: 'q3',
-    locationId: '7',
-    question: 'On which days does the market operate in Downham Market?',
-    options: ['Monday and Wednesday', 'Tuesday and Thursday', 'Friday and Saturday', 'Sunday'],
-    correctAnswer: 2,
-    points: 10,
-    explanation: 'The market operates every Friday and Saturday, creating a lively atmosphere in the town center.'
-  },
-  {
-    id: 'q4',
-    locationId: '1',
-    question: 'Which river flows along Fen Rivers Way?',
-    options: ['Thames', 'Ouse', 'Cam', 'Wensum'],
-    correctAnswer: 1,
-    points: 10,
-    explanation: 'Fen Rivers Way runs along the River Ouse, offering scenic views of the English countryside.'
-  },
-  {
-    id: 'q5',
-    locationId: '3',
-    question: 'What can you see in Boughton Fen?',
-    options: ['Only trees', 'Rare species of birds and butterflies', 'Mountain landscapes', 'Beaches'],
-    correctAnswer: 1,
-    points: 10,
-    explanation: 'Boughton Fen is a nature reserve with unique fen landscapes, home to rare species of birds and butterflies.'
-  }
-];
 
 export const photoChallenges: PhotoChallenge[] = [
   {
